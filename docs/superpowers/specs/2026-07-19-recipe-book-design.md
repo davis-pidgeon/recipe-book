@@ -206,7 +206,33 @@ Taste, Cost. Independently set; may be blank.
 
 ---
 
-## 8. Key user stories
+## 8. Illustration placements
+
+Art style: bold, graphic, illustrative — flat colors, simple abstracted shapes.
+Illustration is used only in dead space, decorative headers, or standalone screens
+— never behind filters, the meal grid, or instruction text. Courtney creates and
+uploads the assets; the build reserves the slots and prompts for upload when reached.
+
+### v1 (build now)
+1. **Login / welcome screen** — hero illustration. Large, ~square or portrait
+   (~1200×1200 or taller for phone). The one screen with no data.
+2. **App logo mark** — small emblem beside "Recipe Book" in the header/tab.
+   Square (~256×256, displayed ~32–40px). A single simple motif.
+3. **Empty states (3)** — medium spot illustrations (~600×600, centered above the
+   prompt), shown only when a section is empty:
+   - Recipes tab with no recipes
+   - Plan tab with an unplanned week
+   - Grocery tab with nothing planned
+
+### Later (slots reserved, not built in v1)
+4. **Recipe detail header strip** — thin decorative banner (~1600×400) behind the
+   title area only; instructions below stay on clean white.
+5. **Per-recipe image** — optional dish photo per recipe (square thumbnail ~400×400
+   + larger detail), with a cuisine-based illustration fallback when no photo exists.
+6. **Print header mark** — small single-color-friendly motif atop the printed
+   half-sheet recipe.
+
+## 9. Key user stories
 
 1. Paste a recipe from Pinterest / ChatGPT / Claude and tidy it into fields instead of retyping.
 2. Type up handwritten recipes into the same format.
