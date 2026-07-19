@@ -1,0 +1,44 @@
+"use client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+export default function LoginForm() {
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(false);
+  const router = useRouter();
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    if (res.ok) router.push("/recipes");
+    else setError(true);
+  }
+
+  return (
+    <form onSubmit={submit} className="w-full">
+      <input
+        type="password"
+        aria-label="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="mt-6 w-full rounded-full border-2 border-buttercream bg-card px-4 py-2 text-center"
+        placeholder="Enter password"
+      />
+      <button
+        type="submit"
+        className="mt-3 w-full rounded-full bg-canyon px-4 py-2 font-bold text-white"
+      >
+        Enter
+      </button>
+      {error && (
+        <p className="mt-2 text-sm text-canyon">
+          That password didn’t work. Try again.
+        </p>
+      )}
+    </form>
+  );
+}
