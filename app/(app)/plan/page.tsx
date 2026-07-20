@@ -44,6 +44,11 @@ export default async function PlanPage({
           />
         </div>
       </div>
+      {slots.length === 0 && (
+        <p className="mt-4 text-ink/70">
+          Nothing planned yet — tap a slot to add a meal, or hit surprise me.
+        </p>
+      )}
       <div className="mt-6 overflow-x-auto">
         <PlanGrid weekStartKey={weekStartKey} slots={data} recipes={recipes} />
       </div>

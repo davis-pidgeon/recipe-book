@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mondayOf, weekKey, addWeeks } from "@/lib/plan/week";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/login");
@@ -29,9 +30,16 @@ test("surprise me fills empty slots but never with a disliked recipe", async ({ 
   await createRecipe(page, goodTitle);
   await createRecipe(page, dislikedTitle, { dislike: true });
 
-  // A fresh, far-future Monday so every default slot is empty.
-  await page.goto("/plan?week=2030-01-07");
-  const grid = page.locator('[data-week="2030-01-07"]');
+  // A fresh, far-future Monday, unique per run, so every default slot is
+  // empty even though tests share the dev DB across runs. Base offset keeps
+  // it well past any hardcoded/near-term weeks other specs might touch;
+  // the Date.now()-derived offset keeps it from colliding with prior runs.
+  const weeksAhead = 500 + (Date.now() % 100000);
+  const futureMonday = mondayOf(addWeeks(mondayOf(new Date()), weeksAhead));
+  const futureWeekKey = weekKey(futureMonday);
+
+  await page.goto(`/plan?week=${futureWeekKey}`);
+  const grid = page.locator(`[data-week="${futureWeekKey}"]`);
   await expect(grid.getByText("Mon", { exact: true }).first()).toBeVisible();
 
   // Open the surprise-me sheet, then confirm from inside it.
