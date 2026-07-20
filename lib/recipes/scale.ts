@@ -4,7 +4,7 @@ export function scaleQuantity(quantity: number | null, multiplier: number): numb
 }
 
 export function scaleServings(servings: number, multiplier: number): number {
-  return servings * multiplier;
+  return Math.round(servings * multiplier);
 }
 
 export function formatQuantity(quantity: number | null): string {

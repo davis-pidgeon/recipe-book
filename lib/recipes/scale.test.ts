@@ -29,3 +29,11 @@ test("formats a decimal, trimming trailing zeros", () => {
 test("formats null as empty string", () => {
   expect(formatQuantity(null)).toBe("");
 });
+
+test("scaleQuantity handles float artifacts correctly", () => {
+  expect(scaleQuantity(0.1, 3)).toBe(0.3);
+});
+
+test("formatQuantity trims raw float to two decimals", () => {
+  expect(formatQuantity(1 / 3)).toBe("0.33");
+});
