@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getRecipe } from "@/lib/recipes/queries";
 import ScaleControl from "@/components/recipes/ScaleControl";
+import AddToPlanButton from "@/components/recipes/AddToPlanButton";
 
 export default async function RecipeDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -10,9 +11,10 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="mx-auto max-w-3xl p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h1 className="text-3xl text-canyon">{recipe.title}</h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <AddToPlanButton recipeId={recipe.id} recipeTitle={recipe.title} />
           <Link href={`/recipes/${recipe.id}/edit`} className="rounded-full border-2 border-buttercream px-3 py-1">
             Edit
           </Link>

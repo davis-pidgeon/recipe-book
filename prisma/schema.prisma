@@ -29,6 +29,7 @@ model Recipe {
 
   ingredients Ingredient[]
   tags        Tag[]        @relation("RecipeTags")
+  planSlots   PlanSlot[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -62,4 +63,22 @@ model Tag {
   recipes Recipe[]  @relation("RecipeTags")
 
   @@unique([group, name])
+}
+
+model PlanSlot {
+  id        String   @id @default(cuid())
+  weekStart DateTime @db.Date
+  dayIndex  Int
+  slotKey   String
+  label     String
+  sortOrder Int      @default(0)
+  note      String?
+  scale     Int      @default(1)
+  recipe    Recipe?  @relation(fields: [recipeId], references: [id], onDelete: SetNull)
+  recipeId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([weekStart, dayIndex, slotKey])
+  @@index([weekStart])
 }
