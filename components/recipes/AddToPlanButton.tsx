@@ -5,8 +5,8 @@ import { mondayOf, weekKey, addWeeks, formatWeekRange } from "@/lib/plan/week";
 import { defaultSlotsForDay, DAY_LABELS } from "@/lib/plan/slots";
 
 function todayDayIndex(): number {
-  const day = new Date().getDay(); // 0=Sun..6=Sat
-  return (day + 6) % 7; // 0=Mon..6=Sun
+  // Mon=0 .. Sun=6, from UTC to match mondayOf's UTC basis
+  return (new Date().getUTCDay() + 6) % 7;
 }
 
 export default function AddToPlanButton({
