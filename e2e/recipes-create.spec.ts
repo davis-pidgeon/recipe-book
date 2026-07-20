@@ -15,8 +15,5 @@ test("can create a recipe and land on its detail page", async ({ page }) => {
   await page.getByRole("button", { name: /split into rows/i }).click();
   await page.getByLabel("Instructions").fill("Cook chicken in a skillet, add rice.");
   await page.getByRole("button", { name: /save recipe/i }).click();
-  // The /recipes/[id] detail page isn't built until Task 9, so assert the
-  // post-submit URL matches the detail route pattern instead of a heading.
-  // Task 9 should re-enable a heading assertion once that page exists.
-  await expect(page).toHaveURL(/\/recipes\/[a-z0-9]+$/);
+  await expect(page.getByRole("heading", { name: "Test skillet chicken" })).toBeVisible();
 });
