@@ -31,3 +31,16 @@ test("parses core fields, ingredients JSON, tags, flags, ratings", () => {
   expect(input.tasteRating).toBe(5);
   expect(input.costRating).toBeNull();
 });
+
+test("handles malformed ingredients JSON gracefully", () => {
+  const f = form([
+    ["title", "Pasta"],
+    ["servings", "2"],
+    ["instructions", "Boil pasta"],
+    ["notes", ""],
+    ["ingredients", "not json"],
+  ]);
+  const input = parseRecipeForm(f);
+  expect(input.title).toBe("Pasta");
+  expect(input.ingredients).toEqual([]);
+});

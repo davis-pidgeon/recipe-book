@@ -25,6 +25,15 @@ export type RecipeInput = {
   costRating: number | null;
 };
 
+function parseIngredients(raw: FormDataEntryValue | null): ParsedIngredient[] {
+  try {
+    const v = JSON.parse(String(raw ?? "[]"));
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
 export function parseRecipeForm(form: FormData): RecipeInput {
   const num = (v: FormDataEntryValue | null) =>
     v === null || v === "" ? null : Number(v);
@@ -37,7 +46,7 @@ export function parseRecipeForm(form: FormData): RecipeInput {
     servings: Number(form.get("servings") ?? 1) || 1,
     instructions: String(form.get("instructions") ?? ""),
     notes: String(form.get("notes") ?? ""),
-    ingredients: JSON.parse(String(form.get("ingredients") ?? "[]")) as ParsedIngredient[],
+    ingredients: parseIngredients(form.get("ingredients")),
     tagIds: form.getAll("tagId").map(String),
     flags,
     tasteRating: num(form.get("tasteRating")),

@@ -13,12 +13,17 @@ export default async function RecipesPage({
 }) {
   const sp = await searchParams;
   const asArray = (v: string | string[] | undefined) => (Array.isArray(v) ? v : v ? [v] : []);
+  const num = (v: string | string[] | undefined) => {
+    const s = Array.isArray(v) ? v[0] : v;
+    const n = s === undefined ? NaN : Number(s);
+    return Number.isFinite(n) ? n : undefined;
+  };
   const filters: Filters = {
     query: typeof sp.q === "string" ? sp.q : undefined,
     tagIds: asArray(sp.tag),
     flags: asArray(sp.flag),
-    minTaste: sp.minTaste ? Number(sp.minTaste) : undefined,
-    minCost: sp.minCost ? Number(sp.minCost) : undefined,
+    minTaste: num(sp.minTaste),
+    minCost: num(sp.minCost),
   };
   const [recipes, tags] = await Promise.all([listRecipes(filters), listTags()]);
 
