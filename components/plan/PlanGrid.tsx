@@ -69,6 +69,7 @@ export default function PlanGrid({
       </div>
       {openSlot && (
         <RecipePickerSheet
+          key={`${openSlot.dayIndex}-${openSlot.slotKey}`}
           weekStartKey={weekStartKey}
           dayIndex={openSlot.dayIndex}
           slotKey={openSlot.slotKey}
