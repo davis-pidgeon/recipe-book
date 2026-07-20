@@ -32,3 +32,20 @@ test("rating thresholds use gte", () => {
   expect(where.tasteRating).toEqual({ gte: 4 });
   expect(where.costRating).toEqual({ gte: 3 });
 });
+
+test("unknown flag is ignored", () => {
+  const where = buildRecipeWhere({
+    flags: ["notARealFlag", "veggieForward"],
+  });
+  expect(where.veggieForward).toBe(true);
+  expect((where as Record<string, unknown>).notARealFlag).toBeUndefined();
+});
+
+test("reserved key is not corrupted by flag input", () => {
+  const where = buildRecipeWhere({ query: "chicken", flags: ["OR"] });
+  expect(where.OR).toEqual([
+    { title: { contains: "chicken", mode: "insensitive" } },
+    { ingredients: { some: { name: { contains: "chicken", mode: "insensitive" } } } },
+  ]);
+  expect(typeof where.OR).toBe("object");
+});

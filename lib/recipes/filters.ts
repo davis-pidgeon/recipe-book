@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import { RECIPE_FLAG_KEYS } from "./flags";
 
 export type RecipeFilters = {
   query?: string;
@@ -25,7 +26,9 @@ export function buildRecipeWhere(filters: RecipeFilters): Prisma.RecipeWhereInpu
 
   if (filters.flags) {
     for (const flag of filters.flags) {
-      (where as Record<string, unknown>)[flag] = true;
+      if (RECIPE_FLAG_KEYS.includes(flag)) {
+        (where as Record<string, unknown>)[flag] = true;
+      }
     }
   }
 
