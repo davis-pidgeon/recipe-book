@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import prisma from "@/lib/db";
 import { detectEquipment } from "./equipment";
-import { TagGroup } from "@prisma/client";
+import { TagGroup, type Tag } from "@prisma/client";
 import { parseRecipeForm, type RecipeInput } from "./parseRecipeForm";
 // Note: RecipeInput is intentionally NOT re-exported from this file. Next's
 // "use server" file transform treats every export (even `export type`,
@@ -12,18 +12,17 @@ import { parseRecipeForm, type RecipeInput } from "./parseRecipeForm";
 // binding exists for a type. Consumers needing the type should import it
 // directly from "./parseRecipeForm".
 
-async function equipmentTagIds(instructions: string): Promise<string[]> {
+export async function detectEquipmentTags(instructions: string): Promise<Tag[]> {
   const terms = detectEquipment(instructions);
-  const ids: string[] = [];
+  const tags: Tag[] = [];
   for (const name of terms) {
-    const tag = await prisma.tag.upsert({
+    tags.push(await prisma.tag.upsert({
       where: { group_name: { group: TagGroup.EQUIPMENT, name } },
       update: {},
       create: { group: TagGroup.EQUIPMENT, name },
-    });
-    ids.push(tag.id);
+    }));
   }
-  return ids;
+  return tags;
 }
 
 function recipeData(input: RecipeInput) {
@@ -40,8 +39,6 @@ function recipeData(input: RecipeInput) {
 
 export async function createRecipe(form: FormData): Promise<void> {
   const input = parseRecipeForm(form);
-  const equipmentIds = await equipmentTagIds(input.instructions);
-  const tagIds = [...new Set([...input.tagIds, ...equipmentIds])];
 
   const recipe = await prisma.recipe.create({
     data: {
@@ -54,7 +51,7 @@ export async function createRecipe(form: FormData): Promise<void> {
           name: ing.name,
         })),
       },
-      tags: { connect: tagIds.map((id) => ({ id })) },
+      tags: { connect: input.tagIds.map((id) => ({ id })) },
     },
   });
 
@@ -63,8 +60,6 @@ export async function createRecipe(form: FormData): Promise<void> {
 
 export async function updateRecipe(id: string, form: FormData): Promise<void> {
   const input = parseRecipeForm(form);
-  const equipmentIds = await equipmentTagIds(input.instructions);
-  const tagIds = [...new Set([...input.tagIds, ...equipmentIds])];
 
   await prisma.$transaction([
     prisma.ingredient.deleteMany({ where: { recipeId: id } }),
@@ -80,7 +75,7 @@ export async function updateRecipe(id: string, form: FormData): Promise<void> {
             name: ing.name,
           })),
         },
-        tags: { set: tagIds.map((id) => ({ id })) },
+        tags: { set: input.tagIds.map((id) => ({ id })) },
       },
     }),
   ]);
@@ -95,7 +90,7 @@ export async function deleteRecipe(id: string): Promise<void> {
 
 // Upserts a tag within a group (e.g. a new cuisine) so the tag picker can be
 // extended inline without a separate admin screen. Reuses the same
-// group+name upsert pattern as equipmentTagIds above.
+// group+name upsert pattern as detectEquipmentTags above.
 export async function createTag(group: TagGroup, name: string) {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("Tag name is required");

@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import type { Tag, TagGroup } from "@prisma/client";
 import { TAG_GROUP_LABELS } from "@/lib/recipes/tags";
-import { createTag } from "@/lib/recipes/actions";
+import { createTag, detectEquipmentTags } from "@/lib/recipes/actions";
 
 export default function TagPicker({ tags, initialIds }: { tags: Tag[]; initialIds?: string[] }) {
   const [allTags, setAllTags] = useState<Tag[]>(tags);
@@ -33,11 +33,40 @@ export default function TagPicker({ tags, initialIds }: { tags: Tag[]; initialId
     });
   }
 
+  function detectEquipment() {
+    const el = document.getElementById("instructions") as HTMLTextAreaElement | null;
+    const text = el?.value ?? "";
+    if (!text) return;
+    startTransition(async () => {
+      const detected = await detectEquipmentTags(text);
+      setAllTags((prev) => {
+        const next = [...prev];
+        for (const tag of detected) {
+          if (!next.some((t) => t.id === tag.id)) next.push(tag);
+        }
+        return next;
+      });
+      setSelected((prev) => {
+        const next = new Set(prev);
+        for (const tag of detected) next.add(tag.id);
+        return next;
+      });
+    });
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {[...selected].map((id) => (
         <input key={id} type="hidden" name="tagId" value={id} />
       ))}
+      <button
+        type="button"
+        onClick={detectEquipment}
+        disabled={isPending}
+        className="self-start rounded-full border-2 border-sky px-3 py-1 text-sm disabled:opacity-50"
+      >
+        Detect equipment from instructions
+      </button>
       {groups.map((g) => (
         <div key={g}>
           <p className="text-sm font-bold">{TAG_GROUP_LABELS[g]}</p>
