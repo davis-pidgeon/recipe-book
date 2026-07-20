@@ -5,12 +5,40 @@ export const EQUIPMENT_TERMS = [
   "dutch oven", "wok", "colander", "rolling pin", "microwave", "toaster",
 ];
 
+// Helper to escape regex metacharacters
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export function detectEquipment(instructions: string): string[] {
   const text = instructions.toLowerCase();
   const found: string[] = [];
+
   for (const term of EQUIPMENT_TERMS) {
-    const pattern = new RegExp(`\\b${term.replace(/ /g, "\\s+")}\\b`, "i");
+    const escapedTerm = escapeRegex(term);
+    const pattern = new RegExp(`\\b${escapedTerm.replace(/ /g, "\\s+")}\\b`, "i");
     if (pattern.test(text)) found.push(term);
   }
-  return found;
+
+  // Remove component terms subsumed by compound terms
+  const result: string[] = [];
+  for (const term of found) {
+    let isSubsumed = false;
+    for (const other of found) {
+      if (term !== other) {
+        // Check if term appears as a whole word within other
+        const escapedTerm = escapeRegex(term);
+        const subsumesRegex = new RegExp(`\\b${escapedTerm}\\b`);
+        if (subsumesRegex.test(other)) {
+          isSubsumed = true;
+          break;
+        }
+      }
+    }
+    if (!isSubsumed) {
+      result.push(term);
+    }
+  }
+
+  return result;
 }
