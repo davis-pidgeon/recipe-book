@@ -1,0 +1,18 @@
+"use client";
+
+type SlotData = { label: string; note: string | null; recipe: { id: string; title: string } | null };
+
+export default function SlotCell({ slot, onOpen }: { slot: SlotData; onOpen: () => void }) {
+  return (
+    <button type="button" onClick={onOpen} className="w-full rounded-lg p-2 text-left text-sm">
+      <span className="block text-[10px] uppercase text-ink/50">{slot.label}</span>
+      {slot.recipe ? (
+        <span className="mt-1 block rounded-md bg-sky px-2 py-1">{slot.recipe.title}</span>
+      ) : slot.note ? (
+        <span className="mt-1 block rounded-md bg-card px-2 py-1">{slot.note}</span>
+      ) : (
+        <span className="mt-1 block rounded-md border-2 border-dashed border-buttercream px-2 py-1 text-ink/40">+ add</span>
+      )}
+    </button>
+  );
+}
