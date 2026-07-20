@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { parseRecipeForm } from "./actions";
+import { parseRecipeForm } from "./parseRecipeForm";
 
 function form(entries: [string, string][]): FormData {
   const f = new FormData();
