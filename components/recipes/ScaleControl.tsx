@@ -1,11 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { scaleQuantity, scaleServings, formatQuantity } from "@/lib/recipes/scale";
 
 type Ing = { quantity: number | null; unit: string | null; name: string };
 
-export default function ScaleControl({ servings, ingredients }: { servings: number; ingredients: Ing[] }) {
+export default function ScaleControl({
+  recipeId,
+  servings,
+  ingredients,
+}: {
+  recipeId: string;
+  servings: number;
+  ingredients: Ing[];
+}) {
   const [mult, setMult] = useState(1);
 
   return (
@@ -27,6 +36,9 @@ export default function ScaleControl({ servings, ingredients }: { servings: numb
           <span className="rounded-full bg-olive px-3 py-1 text-sm font-bold text-white">{mult}x scaled</span>
         )}
         <span className="ml-auto text-sm text-ink/60">Serves {scaleServings(servings, mult)}</span>
+        <Link href={`/recipes/${recipeId}/print?scale=${mult}`} className="rounded-full border-2 border-buttercream px-3 py-1">
+          Print
+        </Link>
       </div>
       <ul className="mt-3 flex flex-col gap-1">
         {ingredients.map((ing, i) => (

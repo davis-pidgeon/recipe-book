@@ -16,9 +16,6 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
           <Link href={`/recipes/${recipe.id}/edit`} className="rounded-full border-2 border-buttercream px-3 py-1">
             Edit
           </Link>
-          <Link href={`/recipes/${recipe.id}/print`} className="rounded-full border-2 border-buttercream px-3 py-1">
-            Print
-          </Link>
         </div>
       </div>
 
@@ -34,7 +31,7 @@ export default async function RecipeDetailPage({ params }: { params: Promise<{ i
 
       <section className="mt-4">
         <h2 className="text-xl">Ingredients</h2>
-        <ScaleControl servings={recipe.servings} ingredients={recipe.ingredients} />
+        <ScaleControl recipeId={recipe.id} servings={recipe.servings} ingredients={recipe.ingredients} />
       </section>
 
       <section className="mt-6">
