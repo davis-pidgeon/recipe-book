@@ -1,6 +1,11 @@
 "use client";
 
-type SlotData = { label: string; note: string | null; recipe: { id: string; title: string } | null };
+type SlotData = {
+  label: string;
+  note: string | null;
+  recipe: { id: string; title: string } | null;
+  scale: number;
+};
 
 export default function SlotCell({
   slot,
@@ -16,7 +21,14 @@ export default function SlotCell({
       <button type="button" onClick={onOpen} className="w-full rounded-lg p-2 text-left text-sm">
         <span className="block text-[10px] uppercase text-ink/50">{slot.label}</span>
         {slot.recipe ? (
-          <span className="mt-1 block rounded-md bg-sky px-2 py-1">{slot.recipe.title}</span>
+          <span className="mt-1 flex items-center gap-1.5 rounded-md bg-sky px-2 py-1">
+            {slot.recipe.title}
+            {slot.scale !== 1 && (
+              <span className="rounded-full bg-olive px-1.5 py-0.5 text-[10px] font-bold text-white">
+                {slot.scale}x
+              </span>
+            )}
+          </span>
         ) : slot.note ? (
           <span className="mt-1 block rounded-md bg-card px-2 py-1">{slot.note}</span>
         ) : (

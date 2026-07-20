@@ -80,13 +80,30 @@ export async function surpriseFill(
   emptyCoords: { dayIndex: number; slotKey: string; label: string; sortOrder: number }[],
   filters: RecipeFilters,
 ) {
+  const weekStart = parseWeekKey(weekKey);
+
+  // The passed-in coords were computed from a page render that may now be
+  // stale (e.g. the other device in this two-device household filled a slot
+  // in the meantime). Re-check against the current DB state and only fill
+  // coords that are still unoccupied, so surprise-me never clobbers a slot
+  // someone else just filled.
+  const existingRows = await prisma.planSlot.findMany({
+    where: { weekStart },
+    select: { dayIndex: true, slotKey: true, recipeId: true, note: true },
+  });
+  const occupiedKeys = new Set(
+    existingRows
+      .filter((row) => row.recipeId != null || (row.note != null && row.note.trim() !== ""))
+      .map((row) => `${row.dayIndex}:${row.slotKey}`),
+  );
+  const targetCoords = emptyCoords.filter((c) => !occupiedKeys.has(`${c.dayIndex}:${c.slotKey}`));
+
   const where = { AND: [buildRecipeWhere(filters), { dislike: false }] };
   const eligible = await prisma.recipe.findMany({ where, select: { id: true } });
-  const picks = pickRandom(eligible, emptyCoords.length);
-  const weekStart = parseWeekKey(weekKey);
+  const picks = pickRandom(eligible, targetCoords.length);
   await prisma.$transaction(
     picks.map((r, i) => {
-      const c = emptyCoords[i];
+      const c = targetCoords[i];
       return prisma.planSlot.upsert({
         where: {
           weekStart_dayIndex_slotKey: {

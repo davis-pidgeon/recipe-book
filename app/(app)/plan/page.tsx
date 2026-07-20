@@ -21,6 +21,7 @@ export default async function PlanPage({
     sortOrder: s.sortOrder,
     note: s.note,
     recipe: s.recipe ? { id: s.recipe.id, title: s.recipe.title } : null,
+    scale: s.recipe ? s.scale : 1,
   }));
   const recipeRows = await listRecipes({});
   const recipes = recipeRows.map((r) => ({

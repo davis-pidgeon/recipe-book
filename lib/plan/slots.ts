@@ -30,6 +30,7 @@ export type StoredSlot = {
   sortOrder: number;
   note: string | null;
   recipe: { id: string; title: string } | null;
+  scale: number;
 };
 
 export type MergedSlot = StoredSlot & { isCustom: boolean };
@@ -50,7 +51,9 @@ export function mergeSlotsForDay(stored: StoredSlot[], dayIndex: number): Merged
   const defaultKeys = new Set(defaultSlotsForDay(dayIndex).map((def) => def.slotKey));
   const defaults = defaultSlotsForDay(dayIndex).map((def) => {
     const hit = dayStored.find((s) => s.slotKey === def.slotKey);
-    return hit ? { ...hit, isCustom: false } : { dayIndex, ...def, note: null, recipe: null, isCustom: false };
+    return hit
+      ? { ...hit, isCustom: false }
+      : { dayIndex, ...def, note: null, recipe: null, scale: 1, isCustom: false };
   });
   const customs = dayStored
     .filter((s) => !defaultKeys.has(s.slotKey))

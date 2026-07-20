@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import type { TagGroup } from "@prisma/client";
 import { surpriseFill } from "@/lib/plan/actions";
 import { TAG_GROUP_LABELS } from "@/lib/recipes/tags";
@@ -19,8 +19,19 @@ export default function SurpriseButton({
   const [open, setOpen] = useState(false);
   const [selectedTagIds, setSelectedTagIds] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   const groups = Array.from(new Set(tags.map((t) => t.group)));
+
+  useEffect(() => {
+    if (!open) return;
+    closeRef.current?.focus();
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") cancel();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   function toggleTag(id: string) {
     setSelectedTagIds((prev) => {
@@ -62,10 +73,16 @@ export default function SurpriseButton({
   }
 
   return (
-    <div className="w-full max-w-sm rounded-2xl border-2 border-buttercream bg-cream p-4 shadow-lg">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Surprise me"
+      className="w-full max-w-sm rounded-2xl border-2 border-buttercream bg-cream p-4 shadow-lg"
+    >
       <div className="flex items-center justify-between">
         <h2 className="text-xl text-canyon">Surprise me</h2>
         <button
+          ref={closeRef}
           type="button"
           onClick={cancel}
           disabled={isPending}

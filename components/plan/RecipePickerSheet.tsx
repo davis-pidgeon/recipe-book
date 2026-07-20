@@ -17,6 +17,8 @@ export type RecipePickerSheetProps = {
   label: string;
   sortOrder: number;
   initialNote: string | null;
+  initialScale?: number;
+  initialRecipeId?: string | null;
   recipes: RecipeOption[];
   onClose: () => void;
 };
@@ -38,12 +40,14 @@ export default function RecipePickerSheet({
   label,
   sortOrder,
   initialNote,
+  initialScale,
+  initialRecipeId,
   recipes,
   onClose,
 }: RecipePickerSheetProps) {
   const [mode, setMode] = useState<"recipe" | "note">("recipe");
   const [query, setQuery] = useState("");
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(initialScale ?? 1);
   const [isPending, startTransition] = useTransition();
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -178,7 +182,10 @@ export default function RecipePickerSheet({
                     type="button"
                     disabled={isPending}
                     onClick={() => pick(r.id)}
-                    className="w-full rounded-lg bg-card px-3 py-2 text-left disabled:opacity-50"
+                    aria-pressed={r.id === initialRecipeId}
+                    className={`w-full rounded-lg px-3 py-2 text-left disabled:opacity-50 ${
+                      r.id === initialRecipeId ? "bg-olive/20 ring-2 ring-olive" : "bg-card"
+                    }`}
                   >
                     {r.title}
                   </button>

@@ -13,6 +13,7 @@ type Slot = {
   sortOrder: number;
   note: string | null;
   recipe: { id: string; title: string } | null;
+  scale: number;
 };
 
 type OpenSlot = {
@@ -21,6 +22,8 @@ type OpenSlot = {
   label: string;
   sortOrder: number;
   note: string | null;
+  scale: number;
+  recipeId: string | null;
 };
 
 export default function PlanGrid({
@@ -60,6 +63,8 @@ export default function PlanGrid({
                       label: s.label,
                       sortOrder: s.sortOrder,
                       note: s.note,
+                      scale: s.scale,
+                      recipeId: s.recipe?.id ?? null,
                     })
                   }
                   onRemove={s.isCustom ? () => handleRemove(s.dayIndex, s.slotKey) : undefined}
@@ -79,6 +84,8 @@ export default function PlanGrid({
           label={openSlot.label}
           sortOrder={openSlot.sortOrder}
           initialNote={openSlot.note}
+          initialScale={openSlot.scale}
+          initialRecipeId={openSlot.recipeId}
           recipes={recipes}
           onClose={() => setOpenSlot(null)}
         />

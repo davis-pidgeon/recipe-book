@@ -63,6 +63,56 @@ test("add a note to a slot instead of a recipe", async ({ page }) => {
   await expect(page.getByText("Leftovers")).not.toBeVisible();
 });
 
+test("scaled slot round-trips: badge shows after picking, picker re-opens with scale selected", async ({
+  page,
+}) => {
+  const title = `Slot test scaled ${Date.now()}`;
+
+  await page.goto("/recipes/new");
+  await page.getByLabel("Title").fill(title);
+  await page.getByLabel("Servings").fill("2");
+  await page.getByLabel("Paste ingredients").fill("1 cup rice");
+  await page.getByRole("button", { name: /split into rows/i }).click();
+  await page.getByLabel("Instructions").fill("Cook the rice.");
+  await page.getByRole("button", { name: /save recipe/i }).click();
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+
+  await page.goto("/plan");
+  const dinnerSlot = page.getByText("Dinner", { exact: true }).nth(2);
+  await dinnerSlot.click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+
+  await dialog.getByLabel("Search recipes").fill(title);
+  await dialog.getByRole("button", { name: "2x", exact: true }).click();
+  await dialog.getByRole("button", { name: title }).click();
+  await expect(dialog).not.toBeVisible();
+
+  // The slot shows the recipe with a "2x" scale badge next to it. Scope to
+  // the slot's own button so we don't also match the picker's scale control.
+  const slotButton = page.getByRole("button", { name: new RegExp(title) });
+  await expect(slotButton).toBeVisible();
+  await expect(slotButton.getByText("2x", { exact: true })).toBeVisible();
+
+  // Reopening the slot shows the picker with 2x selected, not a silent 1x.
+  await slotButton.click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "2x", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(dialog.getByRole("button", { name: "1x", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "false",
+  );
+
+  // Clean up so repeated runs don't leave stale data for other slots/tests.
+  await dialog.getByRole("button", { name: /just a note instead/i }).click();
+  await dialog.getByRole("button", { name: "Clear" }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect(page.getByText(title)).not.toBeVisible();
+});
+
 test("switching slots without closing sheet remounts with fresh state (no stale draft notes)", async ({
   page,
 }) => {
