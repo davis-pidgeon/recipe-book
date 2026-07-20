@@ -1,8 +1,10 @@
 import { getWeekPlan } from "@/lib/plan/queries";
 import { mondayOf, weekKey } from "@/lib/plan/week";
-import { listRecipes } from "@/lib/recipes/queries";
+import { computeEmptyCoords } from "@/lib/plan/slots";
+import { listRecipes, listTags } from "@/lib/recipes/queries";
 import WeekNav from "@/components/plan/WeekNav";
 import PlanGrid from "@/components/plan/PlanGrid";
+import SurpriseButton from "@/components/plan/SurpriseButton";
 
 export default async function PlanPage({
   searchParams,
@@ -26,12 +28,21 @@ export default async function PlanPage({
     title: r.title,
     tags: r.tags.map((t) => ({ id: t.id, name: t.name, group: t.group })),
   }));
+  const tags = await listTags();
+  const emptyCoords = computeEmptyCoords(data);
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <h1 className="text-3xl text-canyon">This week</h1>
-        <WeekNav weekStartKey={weekStartKey} />
+        <div className="flex flex-wrap items-center justify-end gap-4">
+          <WeekNav weekStartKey={weekStartKey} />
+          <SurpriseButton
+            weekStartKey={weekStartKey}
+            emptyCoords={emptyCoords}
+            tags={tags.map((t) => ({ id: t.id, name: t.name, group: t.group }))}
+          />
+        </div>
       </div>
       <div className="mt-6 overflow-x-auto">
         <PlanGrid weekStartKey={weekStartKey} slots={data} recipes={recipes} />

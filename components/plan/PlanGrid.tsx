@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import { DAY_LABELS, defaultSlotsForDay, isWeekend } from "@/lib/plan/slots";
+import { DAY_LABELS, isWeekend, mergeSlotsForDay } from "@/lib/plan/slots";
 import SlotCell from "./SlotCell";
 import AddSlotButton from "./AddSlotButton";
 import RecipePickerSheet, { type RecipeOption } from "./RecipePickerSheet";
@@ -35,20 +35,7 @@ export default function PlanGrid({
   const [openSlot, setOpenSlot] = useState<OpenSlot | null>(null);
   const [, startRemoveTransition] = useTransition();
 
-  const byDay = (d: number) => {
-    const stored = slots.filter((s) => s.dayIndex === d);
-    const defaultKeys = new Set(defaultSlotsForDay(d).map((def) => def.slotKey));
-    const defaults = defaultSlotsForDay(d).map((def) => {
-      const hit = stored.find((s) => s.slotKey === def.slotKey);
-      return hit
-        ? { ...hit, isCustom: false }
-        : { dayIndex: d, ...def, note: null, recipe: null, isCustom: false };
-    });
-    const customs = stored
-      .filter((s) => !defaultKeys.has(s.slotKey))
-      .map((s) => ({ ...s, isCustom: true }));
-    return [...defaults, ...customs].sort((a, b) => a.sortOrder - b.sortOrder);
-  };
+  const byDay = (d: number) => mergeSlotsForDay(slots, d);
 
   function handleRemove(dayIndex: number, slotKey: string) {
     startRemoveTransition(async () => {
