@@ -31,7 +31,7 @@ export default function ScaleControl({ servings, ingredients }: { servings: numb
       <ul className="mt-3 flex flex-col gap-1">
         {ingredients.map((ing, i) => (
           <li key={i}>
-            {formatQuantity(scaleQuantity(ing.quantity, mult))} {ing.unit ?? ""} {ing.name}
+            {[formatQuantity(scaleQuantity(ing.quantity, mult)), ing.unit, ing.name].filter(Boolean).join(" ")}
           </li>
         ))}
       </ul>
