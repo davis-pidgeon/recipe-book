@@ -82,3 +82,24 @@ model PlanSlot {
   @@unique([weekStart, dayIndex, slotKey])
   @@index([weekStart])
 }
+
+model GroceryItem {
+  id        String   @id @default(cuid())
+  weekStart DateTime @db.Date
+  name      String
+  checked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([weekStart])
+}
+
+model GroceryLineFlag {
+  id        String   @id @default(cuid())
+  weekStart DateTime @db.Date
+  lineKey   String
+  checked   Boolean  @default(false)
+  pantry    Boolean  @default(false)
+
+  @@unique([weekStart, lineKey])
+  @@index([weekStart])
+}
