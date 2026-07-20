@@ -22,6 +22,18 @@ test("parseWeekKey invalid falls back to this week's Monday", () => {
   expect(m.getUTCDay()).toBe(1);
 });
 
+test("parseWeekKey rejects calendar-invalid dates (month 13)", () => {
+  const invalid = parseWeekKey("2026-13-01");
+  const fallback = mondayOf(new Date());
+  expect(weekKey(invalid)).toBe(weekKey(fallback));
+});
+
+test("parseWeekKey rejects calendar-invalid dates (day 0)", () => {
+  const invalid = parseWeekKey("2026-07-00");
+  const fallback = mondayOf(new Date());
+  expect(weekKey(invalid)).toBe(weekKey(fallback));
+});
+
 test("addWeeks moves by 7-day multiples", () => {
   expect(weekKey(addWeeks(parseWeekKey("2026-07-20"), 1))).toBe("2026-07-27");
   expect(weekKey(addWeeks(parseWeekKey("2026-07-20"), -1))).toBe("2026-07-13");

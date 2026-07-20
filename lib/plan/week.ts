@@ -17,7 +17,14 @@ export function weekKey(monday: Date): string {
 export function parseWeekKey(key: string): Date {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key);
   if (!m) return mondayOf(new Date());
-  const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+  const y = Number(m[1]);
+  const mo = Number(m[2]);
+  const dd = Number(m[3]);
+  const d = new Date(Date.UTC(y, mo - 1, dd));
+  // Validate that the date round-trips; calendar-invalid values like month 13 or day 0 roll over
+  if (d.getUTCFullYear() !== y || d.getUTCMonth() !== mo - 1 || d.getUTCDate() !== dd) {
+    return mondayOf(new Date());
+  }
   return mondayOf(d);
 }
 
