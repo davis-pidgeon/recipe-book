@@ -8,8 +8,58 @@ datasource db {
 }
 
 model Recipe {
-  id        String   @id @default(cuid())
-  title     String
-  servings  Int      @default(1)
+  id           String       @id @default(cuid())
+  title        String
+  servings     Int          @default(1)
+  instructions String       @default("")
+  notes        String       @default("")
+
+  tasteRating  Int?
+  costRating   Int?
+
+  easyScaleable    Boolean @default(false)
+  veggieForward    Boolean @default(false)
+  runningRecovery  Boolean @default(false)
+  lowCalorie       Boolean @default(false)
+  davisFavorite    Boolean @default(false)
+  courtneyFavorite Boolean @default(false)
+  fellowshipFav    Boolean @default(false)
+  freezerFriendly  Boolean @default(false)
+  dislike          Boolean @default(false)
+
+  ingredients Ingredient[]
+  tags        Tag[]        @relation("RecipeTags")
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Ingredient {
+  id       String  @id @default(cuid())
+  recipe   Recipe  @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  recipeId String
+  position Int
+  quantity Float?
+  unit     String?
+  name     String
+
+  @@index([recipeId])
+}
+
+enum TagGroup {
+  MEAL_OCCASION
+  DIETARY
+  CUISINE
+  MEAT
+  GROCERY_STORE
+  EQUIPMENT
+}
+
+model Tag {
+  id      String    @id @default(cuid())
+  group   TagGroup
+  name    String
+  recipes Recipe[]  @relation("RecipeTags")
+
+  @@unique([group, name])
 }
