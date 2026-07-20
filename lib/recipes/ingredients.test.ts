@@ -32,3 +32,11 @@ test("splitIngredients ignores blank lines", () => {
     { quantity: 3, unit: null, name: "eggs" },
   ]);
 });
+
+test("strips trailing period from unit", () => {
+  expect(parseIngredientLine("2 tbsp. butter")).toEqual({ quantity: 2, unit: "tbsp", name: "butter" });
+});
+
+test("handles divide-by-zero in fraction", () => {
+  expect(parseIngredientLine("1/0 cup sugar")).toEqual({ quantity: null, unit: null, name: "1/0 cup sugar" });
+});

@@ -19,11 +19,13 @@ function parseNumber(tokens: string[]): { value: number | null; rest: string[] }
   // Mixed number: "1 1/2"
   if (/^\d+$/.test(first) && tokens[1] && /^\d+\/\d+$/.test(tokens[1])) {
     const [n, d] = tokens[1].split("/").map(Number);
+    if (d === 0) return { value: null, rest: tokens };
     return { value: Number(first) + n / d, rest: tokens.slice(2) };
   }
   // Simple fraction: "1/2"
   if (/^\d+\/\d+$/.test(first)) {
     const [n, d] = first.split("/").map(Number);
+    if (d === 0) return { value: null, rest: tokens };
     return { value: n / d, rest: tokens.slice(1) };
   }
   // Integer or decimal
@@ -45,7 +47,7 @@ export function parseIngredientLine(line: string): ParsedIngredient {
   let unit: string | null = null;
   let nameTokens = rest;
   if (rest[0] && UNITS.has(rest[0].toLowerCase().replace(/\.$/, ""))) {
-    unit = rest[0];
+    unit = rest[0].replace(/\.$/, "");
     nameTokens = rest.slice(1);
   }
 
