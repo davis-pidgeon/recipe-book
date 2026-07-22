@@ -11,7 +11,7 @@ export type BuiltGrocery = { main: GroceryLine[]; pantry: GroceryLine[] };
 
 export function buildGroceryList(
   sources: SourceIngredient[],
-  flags: Map<string, { checked: boolean; pantry: boolean }>,
+  flags: Map<string, { checked: boolean; pantry: boolean | null }>,
 ): BuiltGrocery {
   const main: GroceryLine[] = [];
   const pantry: GroceryLine[] = [];
@@ -22,7 +22,9 @@ export function buildGroceryList(
     const display = [formatQuantity(scaled), s.unit, s.name].filter(Boolean).join(" ");
     const flag = flags.get(key);
     const line: GroceryLine = { lineKey: key, display, name: s.name, checked: flag?.checked ?? false };
-    if (isPantryStaple(s.name) || flag?.pantry === true) pantry.push(line);
+    const override = flag?.pantry; // true | false | null | undefined
+    const isPantry = override === null || override === undefined ? isPantryStaple(s.name) : override;
+    if (isPantry) pantry.push(line);
     else main.push(line);
   }
 

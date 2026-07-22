@@ -36,6 +36,28 @@ test("applies checked + pantry-override flags by lineKey", () => {
   expect(out.main).toEqual([]);
 });
 
+test("an explicit list override beats auto-detected staple status", () => {
+  const k = lineKey("s1", "r1", 0);
+  const flags = new Map([[k, { checked: false, pantry: false }]]);
+  const out = buildGroceryList([src({ position: 0, name: "olive oil" })], flags);
+  expect(out.main.map((l) => l.name)).toEqual(["olive oil"]);
+  expect(out.pantry).toEqual([]);
+});
+
+test("a staple with no flag falls back to auto-detection into pantry", () => {
+  const out = buildGroceryList([src({ position: 0, name: "olive oil" })], new Map());
+  expect(out.pantry.map((l) => l.name)).toEqual(["olive oil"]);
+  expect(out.main).toEqual([]);
+});
+
+test("a staple with an explicit pantry override stays in the pantry", () => {
+  const k = lineKey("s1", "r1", 0);
+  const flags = new Map([[k, { checked: false, pantry: true }]]);
+  const out = buildGroceryList([src({ position: 0, name: "olive oil" })], flags);
+  expect(out.pantry.map((l) => l.name)).toEqual(["olive oil"]);
+  expect(out.main).toEqual([]);
+});
+
 test("keeps duplicate ingredients as separate lines", () => {
   const out = buildGroceryList([
     src({ planSlotId: "s1", position: 0, name: "chicken" }),

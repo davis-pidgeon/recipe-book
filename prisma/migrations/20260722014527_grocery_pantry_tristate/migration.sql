@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "GroceryLineFlag" ALTER COLUMN "pantry" DROP NOT NULL,
+ALTER COLUMN "pantry" DROP DEFAULT;

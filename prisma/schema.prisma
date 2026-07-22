@@ -98,7 +98,7 @@ model GroceryLineFlag {
   weekStart DateTime @db.Date
   lineKey   String
   checked   Boolean  @default(false)
-  pantry    Boolean  @default(false)
+  pantry    Boolean?
 
   @@unique([weekStart, lineKey])
   @@index([weekStart])

@@ -53,3 +53,46 @@ test("pantry staples are separated from the main list, and manual overrides pers
   await expect(pantrySectionAfter.getByText("1 lb beef")).toBeVisible();
   await expect(page.getByTestId("main-list").getByText("1 lb beef")).toHaveCount(0);
 });
+
+test("a manual list override on an auto-detected staple persists after reload", async ({ page }) => {
+  const title = `Pantry override recipe ${Date.now()}`;
+
+  await page.goto("/recipes/new");
+  await page.getByLabel("Title").fill(title);
+  await page.getByLabel("Servings").fill("2");
+  // Distinct quantity from the "2 cups flour" used in the case above, so the
+  // two flour lines (different recipes, both auto-routed to pantry) don't
+  // collide on display text within the same shared week.
+  await page.getByLabel("Paste ingredients").fill("5 cups flour\n1 lb pork");
+  await page.getByRole("button", { name: /split into rows/i }).click();
+  await page.getByLabel("Instructions").fill("Cook it up.");
+  await page.getByRole("button", { name: /save recipe/i }).click();
+  await expect(page.getByRole("heading", { name: title })).toBeVisible();
+
+  await page.getByRole("button", { name: "Add to plan" }).click();
+  await expect(page.getByRole("dialog", { name: "Add to plan" })).toBeVisible();
+
+  // Distinct day/slot from the other case in this file (Mon/Breakfast) and
+  // from grocery-list.spec.ts / plan-add-from-recipe.spec.ts (Wed/Dinner) so
+  // specs running concurrently against the same week don't clobber each
+  // other's plan slot.
+  await page.getByLabel("Day").selectOption({ label: "Tue" });
+  await page.getByLabel("Slot").selectOption({ label: "Lunch (Courtney)" });
+  await page.getByRole("button", { name: "Add to plan" }).click();
+  await expect(page.getByRole("dialog", { name: "Add to plan" })).not.toBeVisible();
+
+  await page.goto("/grocery");
+
+  // "flour" is an auto-detected staple, so it starts under Pantry check.
+  const pantrySection = page.getByTestId("pantry-section");
+  await expect(pantrySection.getByText("5 cups flour")).toBeVisible();
+
+  const flourRow = pantrySection.getByRole("checkbox", { name: "5 cups flour" }).locator("xpath=ancestor::div[1]");
+  await flourRow.getByRole("button", { name: "Move to list" }).click();
+
+  await page.reload();
+
+  // The explicit list override must beat auto-detection after reload.
+  await expect(page.getByTestId("main-list").getByText("5 cups flour")).toBeVisible();
+  await expect(page.getByTestId("pantry-section").getByText("5 cups flour")).toHaveCount(0);
+});
