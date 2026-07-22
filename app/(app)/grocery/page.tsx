@@ -3,6 +3,7 @@ import { mondayOf, weekKey } from "@/lib/plan/week";
 import WeekNav from "@/components/plan/WeekNav";
 import GroceryLine from "@/components/grocery/GroceryLine";
 import PantrySection from "@/components/grocery/PantrySection";
+import ManualItems from "@/components/grocery/ManualItems";
 
 export default async function GroceryPage({
   searchParams,
@@ -12,7 +13,7 @@ export default async function GroceryPage({
   const sp = await searchParams;
   const weekStartKey =
     (typeof sp.week === "string" ? sp.week : undefined) ?? weekKey(mondayOf(new Date()));
-  const { built } = await getGroceryData(weekStartKey);
+  const { built, manual } = await getGroceryData(weekStartKey);
 
   return (
     <div className="p-6">
@@ -40,7 +41,7 @@ export default async function GroceryPage({
 
       <PantrySection weekStartKey={weekStartKey} lines={built.pantry} />
 
-      {/* Manual items section (Task 7) goes here. */}
+      <ManualItems weekStartKey={weekStartKey} items={manual} />
     </div>
   );
 }
