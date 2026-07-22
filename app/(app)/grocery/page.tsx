@@ -2,6 +2,7 @@ import { getGroceryData } from "@/lib/grocery/queries";
 import { mondayOf, weekKey } from "@/lib/plan/week";
 import WeekNav from "@/components/plan/WeekNav";
 import GroceryLine from "@/components/grocery/GroceryLine";
+import PantrySection from "@/components/grocery/PantrySection";
 
 export default async function GroceryPage({
   searchParams,
@@ -20,7 +21,7 @@ export default async function GroceryPage({
         <WeekNav weekStartKey={weekStartKey} basePath="/grocery" />
       </div>
 
-      <section className="mt-6">
+      <section className="mt-6" data-testid="main-list">
         <h2 className="text-xl text-canyon">
           This week&rsquo;s list <span className="text-base font-normal text-ink/60">({built.main.length} items)</span>
         </h2>
@@ -37,7 +38,9 @@ export default async function GroceryPage({
         )}
       </section>
 
-      {/* Pantry section (Task 6) and manual items section (Task 7) go here. */}
+      <PantrySection weekStartKey={weekStartKey} lines={built.pantry} />
+
+      {/* Manual items section (Task 7) goes here. */}
     </div>
   );
 }
